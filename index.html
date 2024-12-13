@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro Datos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        input, button {
+            padding: 8px;
+            margin: 5px 0;
+            font-size: 16px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .data-list {
+            margin-top: 20px;
+        }
+        .data-item {
+            padding: 8px;
+            border: 1px solid #ddd;
+            margin-bottom: 5px;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>Registro de Datos</h1>
+
+
+    <div>
+        <label for="name">Nombre:</label>
+        <input type="text" id="name" placeholder="Ingresa el Nombre">
+        <label for="value">Valor:</label>
+        <input type="text" id="value" placeholder="Ingresa el Valor">
+        <button onclick="addData()">Agregar Registro</button>
+    </div>
+
+
+    <div class="data-list" id="data-list">
+        <h2>Historial de Datos</h2>
+        <ul id="data-items"></ul>
+    </div>
+
+    <script>
+        async function fetchData() {
+            const response = await fetch('http://localhost:3000/api/data');
+            const data = await response.json();
+            const dataItems = document.getElementById('data-items');
+            dataItems.innerHTML = ''; // Clear existing list
+
+            data.forEach(item => {
+                const listItem = document.createElement('li');
+                listItem.className = 'data-item';
+                listItem.textContent = `Nombre: ${item.name}, Valor: ${item.value}`;
+                dataItems.appendChild(listItem);
+            });
+        }
+
+        async function addData() {
+            const name = document.getElementById('name').value;
+            const value = document.getElementById('value').value;
+
+            if (!name || !value) {
+                alert('Please enter both name and value');
+                return;
+            }
+
+            const newData = {
+                name: name,
+                value: value
+            };
+
+            const response = await fetch('http://localhost:3000/api/data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(newData)
+            });
+
+            const result = await response.json();
+            console.log('Data added:', result);
+            fetchData();
+
+
+            document.getElementById('name').value = '';
+            document.getElementById('value').value = '';
+        }
+
+        window.onload = fetchData;
+    </script>
+</body>
+</html>
